@@ -280,7 +280,7 @@ int32_t *gfa_query_by_reg(const gfa_t *g, int32_t n_bb, const gfa_bubble_t *bb, 
 /*
  * GFA: extract a subgraph
  */
-gfa_t *gfa_subview2(gfa_t *g, int32_t n_seg, const int32_t *seg, int32_t sub_walk)
+gfa_t *gfa_subview3(gfa_t *g, int32_t n_seg, const int32_t *seg, int32_t sub_walk, int32_t keep_coor)
 {
 	gfa_map64_t *h;
 	gfa_t *f;
@@ -337,7 +337,10 @@ gfa_t *gfa_subview2(gfa_t *g, int32_t n_seg, const int32_t *seg, int32_t sub_wal
 			if (n_v == 0) continue;
 			GFA_GROW0(gfa_walk_t, f->walk, f->n_walk, f->m_walk);
 			p = &f->walk[f->n_walk++];
-			p->st = p->en = -1;
+			if (keep_coor)
+				p->st = w->st, p->en = w->en;
+			else
+				p->st = p->en = -1;
 			p->sample = w->sample;
 			p->snid = w->snid;
 			p->hap = w->hap;
@@ -388,6 +391,11 @@ gfa_t *gfa_subview2(gfa_t *g, int32_t n_seg, const int32_t *seg, int32_t sub_wal
 	f->sseq = g->sseq;
 	f->link_aux = g->link_aux;
 	return f;
+}
+
+gfa_t *gfa_subview2(gfa_t *g, int32_t n_seg, const int32_t *seg, int32_t sub_walk)
+{
+	return gfa_subview3(g, n_seg, seg, sub_walk, 0);
 }
 
 gfa_t *gfa_subview(gfa_t *g, int32_t n_seg, const int32_t *seg)
